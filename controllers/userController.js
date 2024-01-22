@@ -267,6 +267,13 @@ class UserController {
     const password = generatePassword();
 
     try {
+      const user = await User.findOne({where: {email: email}});
+      if (!user) {
+        return next(ApiError.badRequest("Пользователь не найден"));
+      }
+      user.new_password = password;
+      user.first_entry = true;
+      await user.save();
       const transporter = nodemailer.createTransport({
         service: "gmail",
         host: "smtp.gmail.com",
@@ -298,11 +305,14 @@ class UserController {
 
   async resetPassword(req, res, next) {
     const { email, password } = req.body
-
+    
     try {
       const user = await User.findOne({where: {email: email}})
       if (!user) {
         return next(ApiError.badRequest("Пользователь не найден"));
+      }
+      if (user.new_password !== password) {
+        return next(ApiError.badRequest("Неверный пароль"));
       }
       const hashPassword = await bcrypt.hash(password, 5);
       user.password = hashPassword
