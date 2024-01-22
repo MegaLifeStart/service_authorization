@@ -29,6 +29,10 @@ const User = sequelize.define('user', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    new_password: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     registrationDate: {
         type: DataTypes.STRING,
         allowNull: false
